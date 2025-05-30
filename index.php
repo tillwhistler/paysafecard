@@ -1,94 +1,9 @@
-# Professionelles Reward- und Glücksrad-Websystem (Paysafecard-Portal)
-
-**Features:**
-- Session-basiertes User-System mit Referral-Code
-- Persistente Coins & Referrals in MySQL
-- Glücksrad (p5.js, smooth, farbenfroh, Emojis, exakt stoppend)
-- Daily Bonus (serverbasiert, 1x/Tag)
-- Referral-System (Fingerprint/IP, robust gegen Betrug, Live-Klicks)
-- TikTok-Bonus (Einreichung, Coins nach Prüfung)
-- Angebote (Card-UI, Fake-Boni, Coins werden gebucht)
-- Auszahlung (PSC, Coins-Abzug, Muster-E-Mail)
-- Komplett modernes, responsives Design (Revolut/N26-Stil)
-- Moderne Code-Qualität, keine veralteten Techniken
-
----
-
-## **Dateistruktur**
-
-```text
-/
-|- index.php
-|- coins_update.php
-|- referral/index.php
-|- referral/track.php
-|- tiktok_bonus.php
-|- redeem.php
-|- css/app.css
-|- js/main.js
-|- js/wheel.js
-|- js/fingerprint.min.js
-|- tpl/home.php
-|- tpl/wheel.php
-|- tpl/offers.php
-|- tpl/referral.php
-|- tpl/tiktok.php
-|- tpl/redeem.php
-|- logo.svg
-|- install.sql
-|- README.md
-```
-
----
-
-## **1. SQL für Datenbanktabellen**
-
-```sql name=install.sql
-CREATE TABLE `referrals` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `ref_code` VARCHAR(32) NOT NULL UNIQUE,
-    `coins` INT NOT NULL DEFAULT 0,
-    `email` VARCHAR(120),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE `referral_clicks` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `ref_code` VARCHAR(32) NOT NULL,
-    `visitor_fp` VARCHAR(64) NOT NULL,
-    `visitor_ip` VARCHAR(64) NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE `tiktok_entries` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `ref_code` VARCHAR(32) NOT NULL,
-    `tiktok_url` VARCHAR(255) NOT NULL,
-    `approved` TINYINT(1) DEFAULT 0,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE `redemptions` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `ref_code` VARCHAR(32) NOT NULL,
-    `prize` VARCHAR(64) NOT NULL,
-    `coins_spent` INT NOT NULL,
-    `email` VARCHAR(120),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
----
-
-## **2. index.php (Session, User, Layout, Navigation, Tabs)**
-
-```php name=index.php
 <?php
 session_start();
 $db_host = "localhost";
-$db_user = "DBUSER";
-$db_pass = "DBPASS";
-$db_name = "DBNAME";
+$db_user = "kostenlo_referral";
+$db_pass = "@Arschloch12";
+$db_name = "kostenlo_referral";
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 if ($conn->connect_error) die("DB Fehler");
 
@@ -155,7 +70,7 @@ $stmt->close();
     </footer>
     <div id="popup" class="popup"></div>
     <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
-    <script src="js/fingerprint.min.js"></script>
+    <script src="https://openfpcdn.io/fingerprintjs/v4"></script>
     <script>
     window.PSC_USER = <?=json_encode(['ref_code'=>$ref_code,'coins'=>$coins, 'email'=>$email])?>;
     </script>
@@ -163,7 +78,3 @@ $stmt->close();
     <script src="js/wheel.js?v=1"></script>
 </body>
 </html>
-```
----
-
-*(Die weiteren Dateien – PHP-API, CSS, JS, Templates etc. – folgen wegen der Zeichenbegrenzung im nächsten Schritt. Antworte einfach mit "weiter", um alle Files und die p5.js-Glücksrad-Integration zu bekommen!)*  
